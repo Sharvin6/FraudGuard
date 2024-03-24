@@ -1,0 +1,190 @@
+import javafx.application.Application;
+import javafx.geometry.Insets;
+import javafx.scene.Scene;
+import javafx.scene.control.*;
+import javafx.scene.layout.GridPane;
+import javafx.scene.paint.Color;
+import javafx.stage.Stage;
+
+import java.util.Random;
+
+public class Hackathon extends Application {
+
+    private double totalMoney = 1000; // Initial total money
+    private String verificationCode; // Store the verification code
+
+    @Override
+    public void start(Stage primaryStage) {
+        primaryStage.setTitle("Secure Transaction Verification");
+
+        // Create UI components for the first scene
+        Label lblTransactionID = new Label("Transaction ID:");
+        TextField txtTransactionID = new TextField();
+        Button btnVerify = new Button("Verify Transaction");
+        Label lblVerificationResult = new Label();
+
+        // Styling for verification result label
+        lblVerificationResult.setTextFill(Color.RED);
+
+        // Layout setup using GridPane for the first scene
+        GridPane gridVerifyTransaction = new GridPane();
+        gridVerifyTransaction.setPadding(new Insets(20, 20, 20, 20));
+        gridVerifyTransaction.setVgap(10);
+        gridVerifyTransaction.setHgap(10);
+
+        // Add components to the grid layout for the first scene
+        gridVerifyTransaction.add(lblTransactionID, 0, 0);
+        gridVerifyTransaction.add(txtTransactionID, 1, 0);
+        gridVerifyTransaction.add(btnVerify, 0, 1);
+        gridVerifyTransaction.add(lblVerificationResult, 0, 2, 2, 1); // Spanning two columns for better alignment
+
+        // Set up the first scene
+        Scene sceneVerifyTransaction = new Scene(gridVerifyTransaction, 400, 200);
+
+        // Create UI components for the transaction scene
+        Label lblVerificationCode = new Label("Enter Verification Code:");
+        TextField txtVerificationCode = new TextField();
+        Button btnSubmitCode = new Button("Submit Code");
+        Label lblCodeVerificationResult = new Label();
+
+        // Styling for verification result label
+        lblCodeVerificationResult.setTextFill(Color.RED);
+
+        // Layout setup using GridPane for the transaction scene
+        GridPane gridTransaction = new GridPane();
+        gridTransaction.setPadding(new Insets(20, 20, 20, 20));
+        gridTransaction.setVgap(10);
+        gridTransaction.setHgap(10);
+
+        // Add components to the grid layout for the transaction scene
+        gridTransaction.add(lblVerificationCode, 0, 0);
+        gridTransaction.add(txtVerificationCode, 1, 0);
+        gridTransaction.add(btnSubmitCode, 0, 1);
+        gridTransaction.add(lblCodeVerificationResult, 0, 2, 2, 1); // Spanning two columns for better alignment
+
+        // Set up the transaction scene
+        Scene sceneTransaction = new Scene(gridTransaction, 400, 200);
+
+        primaryStage.setScene(sceneVerifyTransaction);
+        primaryStage.show();
+
+        // Event handler for verification button in the first scene
+        btnVerify.setOnAction(event -> {
+            String transactionID = txtTransactionID.getText();
+            boolean verified = verifyTransaction(transactionID);
+            if (verified) {
+                // Generate and send verification code
+                generateVerificationCode();
+                sendVerificationCode(); // Simulate sending SMS
+                System.out.println("Verification code: " + verificationCode); // Print verification code to console
+                primaryStage.setScene(sceneTransaction); // Switch to the transaction scene
+            } else {
+                lblVerificationResult.setText("Transaction verification failed!");
+            }
+        });
+
+        // Event handler for submit code button in the transaction scene
+        btnSubmitCode.setOnAction(event -> {
+            String enteredCode = txtVerificationCode.getText();
+            if (enteredCode.equals(verificationCode)) {
+                // Proceed to the transaction scene
+                primaryStage.setScene(sceneProcessTransaction());
+            } else {
+                lblCodeVerificationResult.setText("Incorrect code. Please try again.");
+            }
+        });
+    }
+
+    // Placeholder method for transaction verification
+    private boolean verifyTransaction(String transactionID) {
+        // Actual verification logic would go here (connecting to backend, checking database, etc.)
+        // For demonstration purposes, return true if the transactionID is not empty
+        return !transactionID.isEmpty();
+    }
+
+    // Method to generate a random verification code
+    private void generateVerificationCode() {
+        // Generate a random 6-digit verification code
+        Random random = new Random();
+        int code = 100000 + random.nextInt(900000);
+        verificationCode = String.valueOf(code);
+    }
+
+    // Method to simulate sending the verification code via SMS
+    private void sendVerificationCode() {
+        // Simulate sending SMS with the verification code
+        System.out.println("SMS sent with verification code: " + verificationCode);
+    }
+
+    // Method to create the transaction scene
+    private Scene sceneProcessTransaction() {
+        // Create UI components for the transaction scene
+        
+                Label lblTransactionType = new Label("Transaction Type:");
+                ToggleGroup transactionTypeGroup = new ToggleGroup();
+                RadioButton depositRadioButton = new RadioButton("Deposit");
+                RadioButton withdrawRadioButton = new RadioButton("Withdraw");
+                depositRadioButton.setToggleGroup(transactionTypeGroup);
+                withdrawRadioButton.setToggleGroup(transactionTypeGroup);
+                TextField txtAmount = new TextField();
+                Button btnProcessTransaction = new Button("Process Transaction");
+                Label lblProcessTransactionResult = new Label();
+                Label lblTotalAmount = new Label("Total Money: " + totalMoney); // Label to display total amount
+
+                // Styling for verification result label
+                lblProcessTransactionResult.setTextFill(Color.RED);
+
+                // Layout setup using GridPane for the transaction scene
+                GridPane gridProcessTransaction = new GridPane();
+                gridProcessTransaction.setPadding(new Insets(20, 20, 20, 20));
+                gridProcessTransaction.setVgap(10);
+                gridProcessTransaction.setHgap(10);
+
+                // Add components to the grid layout for the transaction scene
+                gridProcessTransaction.add(lblTransactionType, 0, 0);
+                gridProcessTransaction.add(depositRadioButton, 1, 0);
+                gridProcessTransaction.add(withdrawRadioButton, 2, 0);
+                gridProcessTransaction.add(new Label("Amount:"), 0, 1);
+                gridProcessTransaction.add(txtAmount, 1, 1);
+                gridProcessTransaction.add(btnProcessTransaction, 0, 2);
+                gridProcessTransaction.add(lblProcessTransactionResult, 0, 3, 3, 1); // Spanning three columns for better alignment
+                gridProcessTransaction.add(lblTotalAmount, 0, 4, 3, 1); // Spanning three columns for better alignment
+
+                // Event handler for process transaction button
+                btnProcessTransaction.setOnAction(event -> {
+                    RadioButton selectedRadioButton = (RadioButton) transactionTypeGroup.getSelectedToggle();
+                    if (selectedRadioButton != null) {
+                        String transactionType = selectedRadioButton.getText();
+                        double amount;
+                        try {
+                            amount = Double.parseDouble(txtAmount.getText());
+                        } catch (NumberFormatException e) {
+                            lblProcessTransactionResult.setText("Invalid amount!");
+                            return;
+                        }
+
+                        if (transactionType.equals("Deposit")) {
+                            totalMoney += amount;
+                            lblProcessTransactionResult.setText("Deposit successful!");
+                            lblProcessTransactionResult.setTextFill(Color.GREEN);
+                        } else if (transactionType.equals("Withdraw")) {
+                            if (amount > totalMoney) {
+                                lblProcessTransactionResult.setText("Insufficient funds!");
+                            } else {
+                                totalMoney -= amount;
+                                lblProcessTransactionResult.setText("Withdrawal successful!");
+                                lblProcessTransactionResult.setTextFill(Color.GREEN);
+                            }
+                        }
+                        lblTotalAmount.setText("Total Money: " + totalMoney); // Update total money label
+                    }
+                });
+
+                // Set up the transaction scene
+                return new Scene(gridProcessTransaction, 400, 250);
+            }
+
+            public static void main(String[] args) {
+                launch(args);
+            }
+        }
